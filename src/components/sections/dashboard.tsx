@@ -43,11 +43,6 @@ export function DashboardSection({ data }: DashboardSectionProps) {
   // Step streak
   const stepStreak = computeStepStreak(data.activityData);
 
-  // Ferritin from lab results
-  const ferritin = data.labResults.find(
-    (r) => r.marker.toLowerCase().includes("ferritin") && r.date === "2026-03-21"
-  );
-
   // VO2 Max
   const latestVO2 = data.vo2MaxEntries[data.vo2MaxEntries.length - 1];
 
@@ -145,17 +140,11 @@ export function DashboardSection({ data }: DashboardSectionProps) {
       )}
 
       {/* 6 Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <Card className="p-4 border-border/50">
           <div className="text-[10px] text-muted-foreground mb-1">🔥 10k+ Step Streak</div>
           <div className="text-2xl font-bold text-primary tabular-nums">{stepStreak}</div>
           <div className="text-[10px] text-muted-foreground">days</div>
-        </Card>
-
-        <Card className="p-4 border-border/50">
-          <div className="text-[10px] text-muted-foreground mb-1">🩸 Ferritin Level</div>
-          <div className="text-2xl font-bold text-amber-500 tabular-nums">{ferritin?.value ?? "—"}</div>
-          <div className="text-[10px] text-muted-foreground">{ferritin?.unit ?? "ug/L"}</div>
         </Card>
 
         <Card className="p-4 border-border/50">
