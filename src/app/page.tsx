@@ -65,7 +65,7 @@ export default function Home() {
           <LabResultsSection data={data.labResults} />
           <HealthMetricsSection data={data} />
           <SleepSection data={data} />
-          <FitnessSection data={data.runActivities} />
+          <FitnessSection data={data.runActivities} workouts={data.workoutActivities} />
           <ConditionsSection data={data.conditions} />
           <MedicationsSection data={data.medications} />
           <ImmunizationsSection data={data.immunizations} />

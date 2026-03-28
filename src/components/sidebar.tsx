@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { SearchDialog } from "@/components/search-dialog";
 import {
   Grid3X3,
   Info,
@@ -78,6 +79,7 @@ export function Sidebar({ activeSection }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isDark, setIsDark] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -88,6 +90,17 @@ export function Sidebar({ activeSection }: SidebarProps) {
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const toggleTheme = useCallback(() => {
@@ -176,6 +189,7 @@ export function Sidebar({ activeSection }: SidebarProps) {
           {/* Search */}
           <div className="p-4 pb-2">
             <button
+              onClick={() => setSearchOpen(true)}
               className={cn(
                 "w-full flex items-center gap-3 px-4 py-3 rounded-xl",
                 "bg-secondary/50 hover:bg-secondary",
@@ -269,6 +283,8 @@ export function Sidebar({ activeSection }: SidebarProps) {
           </div>
         </div>
       </aside>
+
+      <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
       {/* Mobile bottom nav */}
       {isMobile && (
