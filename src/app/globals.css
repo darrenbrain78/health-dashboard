@@ -1,26 +1,306 @@
 @import "tailwindcss";
 
+/* ============================================
+   DARREN'S HEALTH DASHBOARD - DESIGN SYSTEM
+   Pixel-perfect match of health.martinamps.com
+   ============================================ */
+
+/* --- Dark Theme (Default) --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 5.5%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 5.5%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 173 80% 50%;
+  --primary-foreground: 240 10% 3.9%;
+  --secondary: 240 5% 12%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 5% 15%;
+  --muted-foreground: 240 5% 55%;
+  --accent: 38 92% 60%;
+  --accent-foreground: 240 10% 3.9%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5% 18%;
+  --input: 240 5% 18%;
+  --ring: 173 80% 50%;
+  --radius: 1rem;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(173 80% 50%) 0%, hsl(199 89% 48%) 100%);
+  --gradient-warm: linear-gradient(135deg, hsl(38 92% 60%) 0%, hsl(16 90% 55%) 100%);
+  --gradient-surface: linear-gradient(180deg, hsl(240 10% 6%) 0%, hsl(240 10% 4%) 100%);
+
+  /* Glass Morphism */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 60px -12px;
+
+  /* Semantic Colors */
+  --success: 158 64% 52%;
+  --warning: 38 92% 60%;
+  --danger: 0 84% 60%;
+  --info: 199 89% 55%;
+
+  /* Chart Tokens */
+  --chart-grid: rgba(255, 255, 255, 0.1);
+  --chart-axis-text: hsl(240 5% 65%);
+  --chart-label-text: hsl(240 5% 75%);
+  --chart-dot-fill: hsl(240 10% 5.5%);
+  --chart-tooltip-bg: hsl(240 10% 8%);
+  --chart-tooltip-border: hsl(240 5% 20%);
+
+  /* Lab Result Colors */
+  --lab-optimal: 160 60% 45%;
+  --lab-optimal-bg: hsla(160, 60%, 45%, 0.18);
+  --lab-optimal-text: hsla(160, 50%, 70%, 1);
+  --lab-good: 160 60% 45%;
+  --lab-good-bg: hsla(160, 60%, 45%, 0.18);
+  --lab-good-text: hsla(160, 50%, 70%, 1);
+  --lab-borderline: 45 85% 55%;
+  --lab-borderline-bg: hsla(45, 85%, 55%, 0.18);
+  --lab-borderline-text: hsla(45, 80%, 75%, 1);
+  --lab-elevated: 350 70% 55%;
+  --lab-elevated-bg: hsla(350, 70%, 55%, 0.18);
+  --lab-elevated-text: hsla(350, 65%, 75%, 1);
+  --lab-critical: 350 75% 50%;
+  --lab-critical-bg: hsla(350, 75%, 50%, 0.22);
+  --lab-critical-text: hsla(350, 70%, 75%, 1);
 }
 
+/* --- Light Theme --- */
+.light {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --primary: 173 80% 40%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 10% 3.9%;
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 5% 40%;
+  --accent: 38 92% 50%;
+  --accent-foreground: 0 0% 100%;
+  --border: 240 5% 90%;
+  --input: 240 5% 90%;
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.8);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
+
+  --chart-grid: rgba(0, 0, 0, 0.1);
+  --chart-axis-text: hsl(240 5% 40%);
+  --chart-label-text: hsl(240 5% 35%);
+  --chart-dot-fill: hsl(0 0% 100%);
+  --chart-tooltip-bg: hsl(0 0% 100%);
+  --chart-tooltip-border: hsl(240 5% 90%);
+
+  --lab-optimal: 160 55% 35%;
+  --lab-optimal-bg: hsla(160, 55%, 45%, 0.2);
+  --lab-optimal-text: hsla(160, 60%, 25%, 1);
+  --lab-good: 160 55% 35%;
+  --lab-good-bg: hsla(160, 55%, 45%, 0.2);
+  --lab-good-text: hsla(160, 60%, 25%, 1);
+  --lab-borderline: 45 80% 45%;
+  --lab-borderline-bg: hsla(45, 80%, 55%, 0.22);
+  --lab-borderline-text: hsla(45, 85%, 25%, 1);
+  --lab-elevated: 350 65% 45%;
+  --lab-elevated-bg: hsla(350, 65%, 50%, 0.2);
+  --lab-elevated-text: hsla(350, 70%, 30%, 1);
+  --lab-critical: 350 70% 42%;
+  --lab-critical-bg: hsla(350, 70%, 48%, 0.24);
+  --lab-critical-text: hsla(350, 75%, 28%, 1);
+}
+
+/* --- Tailwind v4 Theme Inline --- */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --color-danger: hsl(var(--danger));
+  --color-info: hsl(var(--info));
+  --radius-sm: calc(var(--radius) - 0.5rem);
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+
+  /* Status colors for metric cards */
+  --color-emerald-500: #10b981;
+  --color-amber-500: #f59e0b;
+  --color-orange-500: #f97316;
+  --color-red-500: #ef4444;
+  --color-purple-500: #a855f7;
+  --color-cyan-500: #06b6d4;
+  --color-teal-500: #14b8a6;
+  --color-blue-500: #3b82f6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* --- Base Styles --- */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 260px;
+  height: 100vh;
+  background: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
+  overflow-y: auto;
+  z-index: 40;
+}
+
+.main-content {
+  margin-left: 260px;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* --- Mobile Nav --- */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: hsl(var(--card));
+  border-top: 1px solid hsl(var(--border));
+  padding: 0.5rem 0;
+  padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+  display: none;
+}
+
+.mobile-nav-inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.2s;
+  padding: 0.25rem 0.75rem;
+  min-height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.mobile-nav-item.active {
+  color: hsl(var(--primary));
+}
+
+/* --- Responsive --- */
+@media (max-width: 1023px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+    padding-bottom: 5rem;
+  }
+
+  .mobile-nav {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .main-content {
+    padding: 0.75rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* --- Glass Card --- */
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+}
+
+/* --- Animations --- */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
 }

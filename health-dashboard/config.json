@@ -1,0 +1,31 @@
+{
+  "name": "Health Dashboard",
+  "version": "1.0.0",
+  "slug": "health-dashboard",
+  "description": "Personal health data dashboard powered by Oura Ring",
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "startup": "application",
+  "boot": "auto",
+  "init": false,
+  "ingress": true,
+  "ingress_port": 8100,
+  "panel_icon": "mdi:heart-pulse",
+  "panel_title": "Health Dashboard",
+  "ports": {
+    "8100/tcp": 8100
+  },
+  "ports_description": {
+    "8100/tcp": "Direct HTTP access (local network only)"
+  },
+  "options": {
+    "ha_url": "http://192.168.1.2:8123",
+    "ha_token": "",
+    "anthropic_api_key": ""
+  },
+  "schema": {
+    "ha_url": "str",
+    "ha_token": "password",
+    "anthropic_api_key": "password"
+  },
+  "homeassistant_api": true
+}
