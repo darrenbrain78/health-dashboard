@@ -1,6 +1,6 @@
 {
   "name": "Health Dashboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "slug": "health-dashboard",
   "description": "Personal health data dashboard powered by Oura Ring",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
@@ -20,12 +20,12 @@
   "options": {
     "ha_url": "http://192.168.1.2:8123",
     "ha_token": "",
-    "anthropic_api_key": ""
+    "chat_url": "http://192.168.1.2:3001"
   },
   "schema": {
     "ha_url": "str",
     "ha_token": "password",
-    "anthropic_api_key": "password"
+    "chat_url": "str"
   },
   "homeassistant_api": true
 }
