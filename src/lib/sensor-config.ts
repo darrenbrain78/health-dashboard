@@ -1,8 +1,22 @@
+export type SensorCluster = "sleep" | "recovery" | "heart" | "activity" | "body" | "other";
+
+export const CLUSTER_LABELS: Record<SensorCluster, string> = {
+  sleep: "Sleep",
+  recovery: "Recovery",
+  heart: "Heart",
+  activity: "Activity",
+  body: "Body",
+  other: "Other",
+};
+
+export const CLUSTER_ORDER: SensorCluster[] = ["sleep", "recovery", "heart", "activity", "body", "other"];
+
 export interface SensorMeta {
   entityId: string;
   label: string;
   unit: string;
   group: "oura" | "withings" | "other";
+  cluster: SensorCluster;
   format?: (state: string) => string;
   getColor: (state: string) => string;
 }
@@ -140,43 +154,41 @@ function hrvColor(s: string): string {
 const neutral = () => "text-blue-400";
 
 export const SENSOR_CONFIG: SensorMeta[] = [
-  // Oura — Sleep
-  { entityId: "sensor.oura_ring_sleep_score", label: "Sleep Score", unit: "", group: "oura", getColor: scoreColor },
-  { entityId: "sensor.oura_ring_total_sleep_duration", label: "Total Sleep", unit: "", group: "oura", format: formatHours, getColor: sleepDurationColorHrs },
-  { entityId: "sensor.oura_ring_deep_sleep_duration", label: "Deep Sleep", unit: "", group: "oura", format: formatHours, getColor: deepSleepColorHrs },
-  { entityId: "sensor.oura_ring_rem_sleep_duration", label: "REM Sleep", unit: "", group: "oura", format: formatHours, getColor: remSleepColorHrs },
-  { entityId: "sensor.oura_ring_sleep_efficiency", label: "Sleep Efficiency", unit: "%", group: "oura", getColor: efficiencyColor },
+  // Sleep
+  { entityId: "sensor.oura_ring_sleep_score", label: "Sleep Score", unit: "", group: "oura", cluster: "sleep", getColor: scoreColor },
+  { entityId: "sensor.oura_ring_total_sleep_duration", label: "Total Sleep", unit: "", group: "oura", cluster: "sleep", format: formatHours, getColor: sleepDurationColorHrs },
+  { entityId: "sensor.oura_ring_deep_sleep_duration", label: "Deep Sleep", unit: "", group: "oura", cluster: "sleep", format: formatHours, getColor: deepSleepColorHrs },
+  { entityId: "sensor.oura_ring_rem_sleep_duration", label: "REM Sleep", unit: "", group: "oura", cluster: "sleep", format: formatHours, getColor: remSleepColorHrs },
+  { entityId: "sensor.oura_ring_sleep_efficiency", label: "Efficiency", unit: "%", group: "oura", cluster: "sleep", getColor: efficiencyColor },
 
-  // Oura — Recovery & Readiness
-  { entityId: "sensor.oura_ring_readiness_score", label: "Recovery", unit: "", group: "oura", getColor: scoreColor },
-  { entityId: "sensor.oura_ring_hrv_balance_score", label: "HRV Balance", unit: "", group: "oura", getColor: scoreColor },
-  { entityId: "sensor.oura_ring_average_sleep_hrv", label: "Sleep HRV", unit: "ms", group: "oura", getColor: hrvColor },
-  { entityId: "sensor.oura_ring_resilience_level", label: "Resilience", unit: "", group: "oura", getColor: resilienceColor },
-  { entityId: "sensor.oura_ring_cardiovascular_age", label: "Cardio Age", unit: "yrs", group: "oura", getColor: cardioAgeColor },
+  // Recovery
+  { entityId: "sensor.oura_ring_readiness_score", label: "Recovery", unit: "", group: "oura", cluster: "recovery", getColor: scoreColor },
+  { entityId: "sensor.oura_ring_hrv_balance_score", label: "HRV Balance", unit: "", group: "oura", cluster: "recovery", getColor: scoreColor },
+  { entityId: "sensor.oura_ring_average_sleep_hrv", label: "Sleep HRV", unit: "ms", group: "oura", cluster: "recovery", getColor: hrvColor },
+  { entityId: "sensor.oura_ring_resilience_level", label: "Resilience", unit: "", group: "oura", cluster: "recovery", getColor: resilienceColor },
+  { entityId: "sensor.oura_ring_cardiovascular_age", label: "Cardio Age", unit: "yrs", group: "oura", cluster: "recovery", getColor: cardioAgeColor },
+  { entityId: "sensor.oura_ring_stress_day_summary", label: "Stress", unit: "", group: "oura", cluster: "recovery", getColor: stressColor },
+  { entityId: "sensor.oura_ring_temperature_deviation", label: "Temp Dev", unit: "°C", group: "oura", cluster: "recovery", getColor: tempDevColor },
 
-  // Oura — Heart
-  { entityId: "sensor.oura_ring_current_heart_rate", label: "Heart Rate", unit: "bpm", group: "oura", getColor: hrColor },
-  { entityId: "sensor.oura_ring_lowest_sleep_heart_rate", label: "Lowest HR", unit: "bpm", group: "oura", getColor: hrColor },
-  { entityId: "sensor.oura_ring_spo2_average", label: "SpO2", unit: "%", group: "oura", format: (s) => Number(s).toFixed(1), getColor: spo2Color },
+  // Heart
+  { entityId: "sensor.oura_ring_current_heart_rate", label: "Heart Rate", unit: "bpm", group: "oura", cluster: "heart", getColor: hrColor },
+  { entityId: "sensor.oura_ring_lowest_sleep_heart_rate", label: "Lowest HR", unit: "bpm", group: "oura", cluster: "heart", getColor: hrColor },
+  { entityId: "sensor.oura_ring_spo2_average", label: "SpO2", unit: "%", group: "oura", cluster: "heart", format: (s) => Number(s).toFixed(1), getColor: spo2Color },
 
-  // Oura — Activity
-  { entityId: "sensor.oura_ring_steps", label: "Steps", unit: "", group: "oura", format: (s) => Number(s).toLocaleString(), getColor: stepsColor },
-  { entityId: "sensor.oura_ring_active_calories", label: "Active Cal", unit: "kcal", group: "oura", format: (s) => Number(s).toLocaleString(), getColor: neutral },
-  { entityId: "sensor.oura_ring_activity_score", label: "Activity", unit: "", group: "oura", getColor: scoreColor },
+  // Activity
+  { entityId: "sensor.oura_ring_steps", label: "Steps", unit: "", group: "oura", cluster: "activity", format: (s) => Number(s).toLocaleString(), getColor: stepsColor },
+  { entityId: "sensor.oura_ring_active_calories", label: "Active Cal", unit: "kcal", group: "oura", cluster: "activity", format: (s) => Number(s).toLocaleString(), getColor: neutral },
+  { entityId: "sensor.oura_ring_activity_score", label: "Activity", unit: "", group: "oura", cluster: "activity", getColor: scoreColor },
 
-  // Oura — Stress & Other
-  { entityId: "sensor.oura_ring_temperature_deviation", label: "Temp Dev", unit: "°C", group: "oura", getColor: tempDevColor },
-  { entityId: "sensor.oura_ring_stress_day_summary", label: "Stress", unit: "", group: "oura", getColor: stressColor },
+  // Body
+  { entityId: "sensor.withings_weight", label: "Weight", unit: "kg", group: "withings", cluster: "body", format: (s) => Number(s).toFixed(1), getColor: neutral },
+  { entityId: "sensor.withings_muscle_mass", label: "Muscle", unit: "kg", group: "withings", cluster: "body", format: (s) => Number(s).toFixed(1), getColor: neutral },
+  { entityId: "sensor.withings_fat_mass", label: "Fat Mass", unit: "kg", group: "withings", cluster: "body", format: (s) => Number(s).toFixed(1), getColor: fatMassColor },
+  { entityId: "sensor.withings_fat_ratio", label: "Body Fat", unit: "%", group: "withings", cluster: "body", format: (s) => Number(s).toFixed(1), getColor: bodyFatColor },
+  { entityId: "sensor.withings_bone_mass", label: "Bone", unit: "kg", group: "withings", cluster: "body", format: (s) => Number(s).toFixed(1), getColor: neutral },
 
-  // Withings
-  { entityId: "sensor.withings_weight", label: "Weight", unit: "kg", group: "withings", format: (s) => Number(s).toFixed(1), getColor: neutral },
-  { entityId: "sensor.withings_muscle_mass", label: "Muscle Mass", unit: "kg", group: "withings", format: (s) => Number(s).toFixed(1), getColor: neutral },
-  { entityId: "sensor.withings_fat_mass", label: "Fat Mass", unit: "kg", group: "withings", format: (s) => Number(s).toFixed(1), getColor: fatMassColor },
-  { entityId: "sensor.withings_fat_ratio", label: "Body Fat", unit: "%", group: "withings", format: (s) => Number(s).toFixed(1), getColor: bodyFatColor },
-  { entityId: "sensor.withings_bone_mass", label: "Bone Mass", unit: "kg", group: "withings", format: (s) => Number(s).toFixed(1), getColor: neutral },
-
-  // Cold Plunge
-  { entityId: "sensor.cold_plunge_temp_cold_plunge_water_temp", label: "Cold Plunge", unit: "°C", group: "other", format: (s) => Number(s).toFixed(1), getColor: coldPlungeColor },
+  // Other
+  { entityId: "sensor.cold_plunge_temp_cold_plunge_water_temp", label: "Cold Plunge", unit: "°C", group: "other", cluster: "other", format: (s) => Number(s).toFixed(1), getColor: coldPlungeColor },
 ];
 
 export const ALL_SENSOR_IDS = SENSOR_CONFIG.map((s) => s.entityId);

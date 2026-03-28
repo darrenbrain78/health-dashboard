@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { MetricCard } from "@/components/metric-card";
 import { SectionWrapper } from "@/components/section-wrapper";
 import { useLiveSensors } from "@/lib/live-sensors";
-import { ALL_SENSOR_IDS, SENSOR_CONFIG, getSensorMeta } from "@/lib/sensor-config";
+import { ALL_SENSOR_IDS, SENSOR_CONFIG, CLUSTER_ORDER, CLUSTER_LABELS } from "@/lib/sensor-config";
+import type { SensorCluster } from "@/lib/sensor-config";
 import type { HealthData } from "@/types/health";
 
 interface DashboardSectionProps {
@@ -108,34 +109,54 @@ export function DashboardSection({ data }: DashboardSectionProps) {
               <span className="text-[10px] text-muted-foreground animate-pulse">Loading sensors...</span>
             )}
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {sensorsLoading
-              ? Array.from({ length: 10 }).map((_, i) => (
-                  <Card key={i} className="p-3 border-border/30">
-                    <div className="h-3 w-16 bg-secondary rounded animate-pulse mb-2" />
-                    <div className="h-6 w-12 bg-secondary rounded animate-pulse" />
-                  </Card>
-                ))
-              : SENSOR_CONFIG.filter((cfg) => sensors.has(cfg.entityId)).map((cfg) => {
-                  const sv = sensors.get(cfg.entityId)!;
-                  const display = cfg.format ? cfg.format(sv.state) : sv.state;
-                  return (
-                    <Card key={cfg.entityId} className="p-3 border-border/30">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="relative flex h-1.5 w-1.5">
-                          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">{cfg.label}</span>
-                      </div>
-                      <div className={`text-lg font-bold tabular-nums ${cfg.getColor(sv.state)}`}>
-                        {display}
-                        {cfg.unit && <span className="text-[10px] text-muted-foreground ml-1">{cfg.unit}</span>}
-                      </div>
-                    </Card>
-                  );
-                })}
-          </div>
+          {sensorsLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <Card key={i} className="p-3 border-border/30">
+                  <div className="h-3 w-16 bg-secondary rounded animate-pulse mb-2" />
+                  <div className="h-6 w-12 bg-secondary rounded animate-pulse" />
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {CLUSTER_ORDER.filter((cluster) =>
+                SENSOR_CONFIG.some((cfg) => cfg.cluster === cluster && sensors.has(cfg.entityId))
+              ).map((cluster) => {
+                const clusterSensors = SENSOR_CONFIG.filter(
+                  (cfg) => cfg.cluster === cluster && sensors.has(cfg.entityId)
+                );
+                return (
+                  <div key={cluster}>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">
+                      {CLUSTER_LABELS[cluster]}
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                      {clusterSensors.map((cfg) => {
+                        const sv = sensors.get(cfg.entityId)!;
+                        const display = cfg.format ? cfg.format(sv.state) : sv.state;
+                        return (
+                          <Card key={cfg.entityId} className="p-2.5 border-border/30">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="relative flex h-1.5 w-1.5">
+                                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">{cfg.label}</span>
+                            </div>
+                            <div className={`text-lg font-bold tabular-nums ${cfg.getColor(sv.state)}`}>
+                              {display}
+                              {cfg.unit && <span className="text-[10px] text-muted-foreground ml-1">{cfg.unit}</span>}
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
