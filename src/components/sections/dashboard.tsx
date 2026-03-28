@@ -133,7 +133,7 @@ export function DashboardSection({ data }: DashboardSectionProps) {
                         </span>
                         <span className="text-[10px] text-muted-foreground">{cfg.label}</span>
                       </div>
-                      <div className={`text-lg font-bold tabular-nums ${cfg.color}`}>
+                      <div className={`text-lg font-bold tabular-nums ${cfg.getColor(sv.state)}`}>
                         {display}
                         {cfg.unit && <span className="text-[10px] text-muted-foreground ml-1">{cfg.unit}</span>}
                       </div>
