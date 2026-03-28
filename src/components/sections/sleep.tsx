@@ -12,11 +12,17 @@ import {
   AreaChart,
   Area,
   ComposedChart,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
   ReferenceLine,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
 } from "recharts";
 import {
   CHART_COLORS,
@@ -293,6 +299,51 @@ export function SleepSection({ data }: SleepSectionProps) {
       ),
     [recentTemp]
   );
+
+  const wkBDI = useMemo(
+    () =>
+      weeklyAverage(
+        recentSpo2
+          .filter((d) => d.breathingDisturbanceIndex != null)
+          .map((d) => ({ date: d.date, value: d.breathingDisturbanceIndex }))
+      ),
+    [recentSpo2]
+  );
+
+  // --- Readiness contributors ---
+  const contributorLabels: Record<string, string> = {
+    activity_balance: "Activity Balance",
+    body_temperature: "Body Temp",
+    hrv_balance: "HRV Balance",
+    previous_day_activity: "Prev Day Activity",
+    previous_night: "Prev Night",
+    recovery_index: "Recovery Index",
+    resting_heart_rate: "Resting HR",
+    sleep_balance: "Sleep Balance",
+    sleep_regularity: "Sleep Regularity",
+  };
+
+  const radarData = useMemo(() => {
+    const latest = recentReadiness[recentReadiness.length - 1];
+    if (!latest?.contributors) return [];
+
+    // 7-day average
+    const recent7 = recentReadiness.slice(-7);
+    const avgContributors: Record<string, number> = {};
+    for (const key of Object.keys(contributorLabels)) {
+      const vals = recent7
+        .map((d) => d.contributors[key as keyof typeof d.contributors])
+        .filter((v): v is number => v != null);
+      avgContributors[key] = vals.length ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : 0;
+    }
+
+    return Object.entries(contributorLabels).map(([key, label]) => ({
+      subject: label,
+      latest: latest.contributors[key as keyof typeof latest.contributors] ?? 0,
+      avg7d: avgContributors[key] ?? 0,
+      fullMark: 100,
+    }));
+  }, [recentReadiness]);
 
   // Format week label for display (show only every ~4th)
   const formatWeek = (w: string) => {
@@ -602,6 +653,84 @@ export function SleepSection({ data }: SleepSectionProps) {
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
+
+        {/* 12. Breathing Disturbance Index */}
+        {wkBDI.length > 0 && (
+          <ChartCard title="Breathing Disturbance Index" change={pctChange(wkBDI)}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={wkBDI}>
+                <defs>
+                  <linearGradient id="bdiGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={CHART_COLORS.warning} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={CHART_COLORS.warning} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid {...CHART_GRID_STYLE} />
+                <XAxis dataKey="week" tickFormatter={formatWeek} tick={CHART_AXIS_STYLE} />
+                <YAxis tick={CHART_AXIS_STYLE} />
+                <Tooltip {...CHART_TOOLTIP_STYLE} />
+                <ReferenceLine
+                  y={5}
+                  stroke={CHART_COLORS.danger}
+                  strokeDasharray="6 3"
+                  label={{
+                    value: "Normal <5",
+                    position: "right",
+                    fill: CHART_COLORS.danger,
+                    fontSize: 10,
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  name="BDI"
+                  stroke={CHART_COLORS.warning}
+                  strokeWidth={2}
+                  fill="url(#bdiGrad)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        )}
+
+        {/* 13. Recovery Contributors (Radar) */}
+        {radarData.length > 0 && (
+          <ChartCard title="Recovery Contributors">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
+                <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                <PolarAngleAxis
+                  dataKey="subject"
+                  tick={{ fontSize: 9, fill: "hsl(240 5% 65%)" }}
+                />
+                <PolarRadiusAxis
+                  domain={[0, 100]}
+                  tick={false}
+                  axisLine={false}
+                />
+                <Radar
+                  name="7-day avg"
+                  dataKey="avg7d"
+                  stroke={CHART_COLORS.recovery}
+                  fill="none"
+                  strokeWidth={1}
+                  strokeDasharray="4 3"
+                />
+                <Radar
+                  name="Latest"
+                  dataKey="latest"
+                  stroke={CHART_COLORS.recovery}
+                  fill={CHART_COLORS.recovery}
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 10, color: "hsl(240 5% 65%)" }}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        )}
       </div>
 
       {/* Legend for sleep stages */}

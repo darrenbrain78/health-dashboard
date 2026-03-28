@@ -1,6 +1,6 @@
 {
   "name": "Health Dashboard",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "slug": "health-dashboard",
   "description": "Personal health data dashboard powered by Oura Ring",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],

@@ -3,6 +3,8 @@
 import { Card } from "@/components/ui/card";
 import { MetricCard } from "@/components/metric-card";
 import { SectionWrapper } from "@/components/section-wrapper";
+import { useLiveSensors } from "@/lib/live-sensors";
+import { ALL_SENSOR_IDS, SENSOR_CONFIG, getSensorMeta } from "@/lib/sensor-config";
 import type { HealthData } from "@/types/health";
 
 interface DashboardSectionProps {
@@ -84,6 +86,9 @@ export function DashboardSection({ data }: DashboardSectionProps) {
   const achievedGoals = goals.filter((g) => g.achieved);
   const workingGoals = goals.filter((g) => !g.achieved);
 
+  const { sensors, loading: sensorsLoading } = useLiveSensors(ALL_SENSOR_IDS);
+  const hasLiveSensors = sensors.size > 0;
+
   return (
     <SectionWrapper id="dashboard" title="">
       {/* LIVE Badge */}
@@ -98,6 +103,46 @@ export function DashboardSection({ data }: DashboardSectionProps) {
         </div>
         <span className="text-xs text-muted-foreground">{(totalDatapoints / 1000).toFixed(0)}k+ datapoints</span>
       </div>
+
+      {/* Live Sensor Cards */}
+      {(sensorsLoading || hasLiveSensors) && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Today (Live)</h3>
+            {sensorsLoading && (
+              <span className="text-[10px] text-muted-foreground animate-pulse">Loading sensors...</span>
+            )}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {sensorsLoading
+              ? Array.from({ length: 10 }).map((_, i) => (
+                  <Card key={i} className="p-3 border-border/30">
+                    <div className="h-3 w-16 bg-secondary rounded animate-pulse mb-2" />
+                    <div className="h-6 w-12 bg-secondary rounded animate-pulse" />
+                  </Card>
+                ))
+              : SENSOR_CONFIG.filter((cfg) => sensors.has(cfg.entityId)).map((cfg) => {
+                  const sv = sensors.get(cfg.entityId)!;
+                  const display = cfg.format ? cfg.format(sv.state) : sv.state;
+                  return (
+                    <Card key={cfg.entityId} className="p-3 border-border/30">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{cfg.label}</span>
+                      </div>
+                      <div className={`text-lg font-bold tabular-nums ${cfg.color}`}>
+                        {display}
+                        {cfg.unit && <span className="text-[10px] text-muted-foreground ml-1">{cfg.unit}</span>}
+                      </div>
+                    </Card>
+                  );
+                })}
+          </div>
+        </div>
+      )}
 
       {/* 6 Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -185,6 +230,17 @@ export function DashboardSection({ data }: DashboardSectionProps) {
             <div className="text-[10px] text-muted-foreground">Age</div>
             <div className="text-lg font-bold tabular-nums">{new Date().getFullYear() - 1978}</div>
           </Card>
+          {sensors.has("sensor.oura_ring_cardiovascular_age") && (() => {
+            const cardioAge = Number(sensors.get("sensor.oura_ring_cardiovascular_age")!.state);
+            const chronoAge = new Date().getFullYear() - 1978;
+            const isGood = cardioAge <= chronoAge;
+            return (
+              <Card className="p-3 text-center border-border/30">
+                <div className="text-[10px] text-muted-foreground">Cardio Age</div>
+                <div className={`text-lg font-bold tabular-nums ${isGood ? "text-emerald-500" : "text-red-500"}`}>{cardioAge}</div>
+              </Card>
+            );
+          })()}
           <Card className="p-3 text-center border-border/30">
             <div className="text-[10px] text-muted-foreground">Blood</div>
             <div className="text-lg font-bold">{data.patientInfo.bloodType}</div>

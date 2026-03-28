@@ -1,8 +1,19 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SectionWrapper } from "@/components/section-wrapper";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
+import { CHART_AXIS_STYLE, CHART_GRID_STYLE, CHART_TOOLTIP_STYLE } from "@/lib/chart-config";
 import { cn } from "@/lib/utils";
 import type { BodyComposition } from "@/types/health";
 
@@ -126,6 +137,60 @@ export function BodyCompositionSection({ data }: BodyCompositionSectionProps) {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Trend Charts */}
+      {sorted.length >= 2 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          {([
+            { key: "weightKg" as const, label: "Weight (kg)", color: "#3b82f6", refLine: undefined },
+            { key: "bodyFatPct" as const, label: "Body Fat (%)", color: "#f59e0b", refLine: undefined },
+            { key: "leanMassKg" as const, label: "Lean Mass (kg)", color: "#10b981", refLine: undefined },
+            { key: "bmi" as const, label: "BMI", color: "#06b6d4", refLine: 25 },
+          ] as const).map(({ key, label, color, refLine }) => (
+            <Card key={key}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">{label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[200px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={sorted.map((d) => ({ date: formatDate(d.date), value: d[key] }))}>
+                      <CartesianGrid {...CHART_GRID_STYLE} />
+                      <XAxis dataKey="date" tick={CHART_AXIS_STYLE} />
+                      <YAxis
+                        domain={["dataMin - 1", "dataMax + 1"]}
+                        tick={CHART_AXIS_STYLE}
+                      />
+                      <Tooltip {...CHART_TOOLTIP_STYLE} />
+                      {refLine != null && (
+                        <ReferenceLine
+                          y={refLine}
+                          stroke="#ef4444"
+                          strokeDasharray="6 3"
+                          label={{
+                            value: `${refLine}`,
+                            position: "right",
+                            fill: "#ef4444",
+                            fontSize: 10,
+                          }}
+                        />
+                      )}
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        name={label}
+                        stroke={color}
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: color }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </SectionWrapper>
   );
 }

@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SectionWrapper } from "@/components/section-wrapper";
 import { Send, Bot, User, Activity, Moon, Heart, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getHAConfig, isHAAvailable } from "@/lib/ha-config";
+import { isHAAvailable } from "@/lib/ha-config";
+import { fetchSensors } from "@/lib/live-sensors";
+import { SENSOR_CONFIG } from "@/lib/sensor-config";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -40,51 +42,21 @@ function getChatUrl(): string {
   return process.env.NEXT_PUBLIC_CHAT_URL ?? "http://localhost:3001/api/chat";
 }
 
-// Fetch live HA sensor values for Oura
+// Fetch live HA sensor values for chat context
 async function fetchLiveContext(): Promise<Record<string, unknown>> {
   if (!isHAAvailable()) return {};
 
-  const { url, token } = getHAConfig({ useProxy: true });
-  if (!token) return {};
-
-  const sensors = [
-    "sensor.oura_ring_sleep_score",
-    "sensor.oura_ring_readiness_score",
-    "sensor.oura_ring_hrv_balance_score",
-    "sensor.oura_ring_total_sleep_duration",
-    "sensor.oura_ring_deep_sleep_duration",
-    "sensor.oura_ring_rem_sleep_duration",
-    "sensor.oura_ring_cardiovascular_age",
-    "sensor.oura_ring_resilience_level",
-    "sensor.oura_ring_steps",
-    "sensor.oura_ring_temperature_deviation",
-  ];
-
+  const sensorIds = SENSOR_CONFIG.map((s) => s.entityId);
+  const sensors = await fetchSensors(sensorIds);
   const context: Record<string, unknown> = {};
 
-  try {
-    const base = url || "";
-    const res = await fetch(`${base}/api/states`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) return {};
-    const states = (await res.json()) as Array<{
-      entity_id: string;
-      state: string;
-      attributes: Record<string, unknown>;
-    }>;
-
-    for (const sensor of sensors) {
-      const entity = states.find((s) => s.entity_id === sensor);
-      if (entity && entity.state !== "unavailable" && entity.state !== "unknown") {
-        const name = sensor
-          .replace("sensor.oura_ring_", "")
-          .replace(/_/g, " ");
-        context[name] = entity.state;
-      }
-    }
-  } catch {
-    // HA not reachable - that's fine, continue without live data
+  for (const [entityId, sv] of sensors) {
+    const name = entityId
+      .replace("sensor.oura_ring_", "")
+      .replace("sensor.withings_", "withings_")
+      .replace("sensor.", "")
+      .replace(/_/g, " ");
+    context[name] = sv.state;
   }
 
   return context;
