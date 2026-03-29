@@ -95,9 +95,26 @@ export function DashboardSection({ data }: DashboardSectionProps) {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
           <span className="text-xs font-medium text-emerald-400">LIVE</span>
-          <span className="text-xs text-muted-foreground">· {latestDate ? `${daysOverdue(latestDate) === 0 ? "Today" : daysOverdue(latestDate) + "d ago"}` : ""}</span>
+          <span className="text-xs text-muted-foreground">
+            · {(() => {
+              // Use most recent live sensor update if available, otherwise fall back to static data
+              const liveUpdates = Array.from(sensors.values())
+                .map((s) => new Date(s.lastUpdated).getTime())
+                .filter((t) => !isNaN(t));
+              const mostRecent = liveUpdates.length > 0
+                ? new Date(Math.max(...liveUpdates))
+                : latestDate ? new Date(latestDate) : null;
+              if (!mostRecent) return "";
+              const minsAgo = Math.floor((Date.now() - mostRecent.getTime()) / 60000);
+              if (minsAgo < 1) return "Just now";
+              if (minsAgo < 60) return `${minsAgo}m ago`;
+              const hrsAgo = Math.floor(minsAgo / 60);
+              if (hrsAgo < 24) return `${hrsAgo}h ago`;
+              return `${Math.floor(hrsAgo / 24)}d ago`;
+            })()}
+          </span>
         </div>
-        <span className="text-xs text-muted-foreground">{(totalDatapoints / 1000).toFixed(0)}k+ datapoints</span>
+        {hasLiveSensors && <span className="text-xs text-muted-foreground">{sensors.size} live sensors</span>}
       </div>
 
       {/* Live Sensor Cards */}
